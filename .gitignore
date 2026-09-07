@@ -1,0 +1,21 @@
+# Your credentials and live config - never commit
+bridge/manual_config.yaml
+bridge/manual_bridge.env
+
+# Outbox / ack / state files. The clone IS the working folder (the outbox/
+# folder ships tracked-but-empty), so these must all be ignored by name.
+*.jsonl
+outbox/*
+!outbox/.gitkeep
+manual-acks/
+manual-state/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db

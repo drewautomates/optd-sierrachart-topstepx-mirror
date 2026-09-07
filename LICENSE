@@ -1,0 +1,46 @@
+MIT License
+
+Copyright (c) 2026 Andrew Thomas (OPTD, onepersontradedesk.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+RISK DISCLOSURE AND DISCLAIMER
+
+This software places, replaces and cancels REAL ORDERS on a REAL TopstepX
+account. It is provided for educational and research purposes only. Nothing in
+this repository is financial, investment or trading advice, or a recommendation
+to buy or sell any financial instrument.
+
+Trading futures and other leveraged products carries a substantial risk of
+loss, and you can lose more than your initial deposit. This software is a
+one-way mirror with no reconciliation: an order can be missed, duplicated,
+filled on one account and not the other, or left resting after the source
+account is flat. A defect in this software, in your configuration, network,
+Sierra Chart installation or the TopstepX API can lose money. Test it on a
+practice account before putting money behind it, and watch the TopstepX portal
+the whole time it runs.
+
+You are solely responsible for every order this software sends; for verifying
+that mirroring or copying trades is permitted under the terms of TopstepX and
+of any proprietary trading firm, broker or evaluation program whose account you
+connect; and for complying with all laws and regulations that apply to you. The
+authors and copyright holder accept no liability for any loss, account breach
+or rule violation arising from its use.

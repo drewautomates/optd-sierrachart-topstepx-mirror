@@ -1,0 +1,58 @@
+# TopstepX manual mirror bridge config.
+# Copy to manual_config.yaml (gitignored) and edit every line marked REPLACE.
+#
+# accountId: the TopstepX account INTEGER to mirror into (not the display
+#            name). Find it with:
+#              python manual_bridge.py --config manual_config.yaml --env manual_bridge.env --list-accounts
+# contracts: short key -> TopstepX contractId. The key is what the Sierra
+#            Chart study's "Symbol->Contract Map" input produces (MNQ, NQ, ES,
+#            MES by default). EDIT AT EVERY CONTRACT ROLL.
+# paths:     OPTIONAL - normally leave the whole block commented out. The
+#            bridge defaults to the outbox/ folder shipped next to bridge/ in
+#            this repo, wherever you cloned it.
+# tuning:    pollIntervalS (outbox tail rate) + the burst circuit-breaker.
+
+accountId: 0   # <-- REPLACE with the integer from --list-accounts
+
+contracts:
+  # ProjectX contract ids look like CON.F.US.<root>.<month><yy>. Note that the
+  # full-size E-mini roots are EP (S&P 500) and ENQ (Nasdaq-100), NOT the CME
+  # tickers ES/NQ; the micros keep their tickers. The TopstepX UI shows ESU6 /
+  # NQU6 but the place API needs the ids below. Verify at each roll via
+  # POST /api/Contract/search - a wrong id fails with errorCode 8.
+  MNQ: "CON.F.US.MNQ.U26"   # <-- REPLACE at roll
+  NQ:  "CON.F.US.ENQ.U26"   # <-- REPLACE at roll (root ENQ, not NQ)
+  ES:  "CON.F.US.EP.U26"    # <-- REPLACE at roll (root EP, not ES)
+  MES: "CON.F.US.MES.U26"   # <-- REPLACE at roll
+
+paths:
+  # NOTHING TO DO HERE. Leave every line below commented out.
+  #
+  # The bridge defaults to the outbox\ folder that ships next to bridge\ in
+  # this repo - so it is correct wherever you cloned to, and there is nothing
+  # on this side to keep in sync.
+  #
+  # You still have to tell SIERRA CHART where that folder is. Run:
+  #     python manual_bridge.py --doctor
+  # and it prints the exact path to paste into the study's "Outbox Directory".
+  #
+  # Only set outbox: below if you want the study writing somewhere else
+  # entirely. If you do, the study input must match it or nothing mirrors.
+  # Backslashes are DOUBLED inside YAML double quotes; in the Sierra Chart
+  # input box they are SINGLE. Same folder, two quoting rules.
+  #
+  # outbox: "C:\\SierraChart\\sc-topstepx-mirror\\outbox"
+  #
+  # acks and state default to siblings of the outbox.
+  # acks:  "C:\\SierraChart\\sc-topstepx-mirror\\manual-acks"
+  # state: "C:\\SierraChart\\sc-topstepx-mirror\\manual-state"
+
+tuning:
+  pollIntervalS: 0.1   # outbox tail frequency (lower = faster mirror; floor 0.05)
+  # Burst circuit-breaker: halt placing (cancels still allowed) if more than
+  # burstMaxPlaces order-creating commands arrive within burstWindowS seconds.
+  # Backstop against an emitter fault firing a storm. Defaults are generous so
+  # a bracket (3 orders) and aggressive scaling never trip it; once tripped it
+  # stays latched until you restart the bridge.
+  burstMaxPlaces: 12   # max place/cancel_replace commands per window
+  burstWindowS: 4.0    # sliding window in seconds
