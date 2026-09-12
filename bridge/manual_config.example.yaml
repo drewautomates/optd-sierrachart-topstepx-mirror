@@ -17,13 +17,26 @@ accountId: 0   # <-- REPLACE with the integer from --list-accounts
 contracts:
   # ProjectX contract ids look like CON.F.US.<root>.<month><yy>. Note that the
   # full-size E-mini roots are EP (S&P 500) and ENQ (Nasdaq-100), NOT the CME
-  # tickers ES/NQ; the micros keep their tickers. The TopstepX UI shows ESU6 /
-  # NQU6 but the place API needs the ids below. Verify at each roll via
-  # POST /api/Contract/search - a wrong id fails with errorCode 8.
-  MNQ: "CON.F.US.MNQ.U26"   # <-- REPLACE at roll
-  NQ:  "CON.F.US.ENQ.U26"   # <-- REPLACE at roll (root ENQ, not NQ)
-  ES:  "CON.F.US.EP.U26"    # <-- REPLACE at roll (root EP, not ES)
-  MES: "CON.F.US.MES.U26"   # <-- REPLACE at roll
+  # tickers ES/NQ; the micros keep their tickers. The TopstepX UI shows ESZ6 /
+  # NQZ6 but the place API needs the ids below.
+  #
+  # VERIFY THESE BEFORE YOU TRADE. The ids below are a sample month, not a
+  # promise they are current when you read this.
+  #   - The month here must be the month TopstepX is trading AND the month on
+  #     your Sierra Chart chart (the study's Scan Symbols input). All three
+  #     have to agree, or orders go to the wrong contract or never mirror.
+  #   - POST /api/Contract/search returns only the month ProjectX marks as
+  #     active. In roll week it can still return the old month; check the
+  #     next one directly with POST /api/Contract/searchById.
+  #   - A wrong or unknown id fails with errorCode 8. An expired month is
+  #     flagged by --doctor, but a valid wrong month (last quarter's contract
+  #     during roll week) is not. Checking is on you.
+  # Index futures roll quarterly. Month codes: H = March, M = June,
+  # U = September, Z = December; then the 2-digit year (Z26 = December 2026).
+  MNQ: "CON.F.US.MNQ.Z26"   # <-- REPLACE at roll
+  NQ:  "CON.F.US.ENQ.Z26"   # <-- REPLACE at roll (root ENQ, not NQ)
+  ES:  "CON.F.US.EP.Z26"    # <-- REPLACE at roll (root EP, not ES)
+  MES: "CON.F.US.MES.Z26"   # <-- REPLACE at roll
 
 paths:
   # NOTHING TO DO HERE. Leave every line below commented out.

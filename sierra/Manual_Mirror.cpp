@@ -490,7 +490,7 @@ SCSFExport scsf_ManualMirror(SCStudyInterfaceRef sc) {
             sc.AddMessageToLog(
                 "Manual_Mirror: Scan Symbols input is empty - nothing to mirror. "
                 "Set the EXACT symbols as shown in the chart header, ';' separated "
-                "(e.g. ESU6.CME;MESU6.CME). A symbol not listed never mirrors.", 1);
+                "(e.g. ESZ6.CME;MESZ6.CME). A symbol not listed never mirrors.", 1);
             warned_no_symbols = true;
         }
         return;

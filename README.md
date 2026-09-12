@@ -5,12 +5,20 @@
 > left resting after Sierra Chart is flat. Test it on a practice account, read
 > [Limitations](#limitations) and the [risk disclosure](LICENSE) before you
 > put money behind it, and confirm that mirroring trades is permitted under
-> TopstepX's rules and those of any prop firm whose account you connect. You
-> are responsible for every order it sends.
+> [TopstepX's rules](#check-topsteps-rules-first) and those of any prop firm
+> whose account you connect. You are responsible for every order it sends.
 
 Shadow-copies the orders you place **by hand** in Sierra Chart onto a TopstepX
 account. Trade your primary account from Sierra Chart as usual; a second
 account on TopstepX follows.
+
+- **Watch it run:** [How to Trade TopstepX From Sierra Chart](https://youtu.be/PGZLzlDdw9I).
+  The full setup, then a live bracket and OCO test on a practice account.
+- **Written guide:** [Sierra Chart to TopstepX trade copier](https://onepersontradedesk.com/blog/sierra-chart-topstepx-trade-copier).
+  The setup step by step, what it costs, and how to test it on a practice account.
+- **More free plumbing like this:** [get the newsletter](https://onepersontradedesk.com/resources?utm_source=github&utm_medium=repo&utm_campaign=topstepx-mirror-repo&utm_content=readme).
+  One short brief a week from building a one-person trade desk, and the
+  optd-starter repo when you sign up.
 
 ```
 Sierra Chart manual order  --scan-->  Manual_Mirror.cpp (ACSIL study)
@@ -38,17 +46,78 @@ One-way. Sierra Chart is the brain, TopstepX is the shadow. Nothing on
 TopstepX ever feeds back into Sierra Chart. Read [Limitations](#limitations)
 before you put money behind it.
 
+It is a mirror, not a trading strategy. It never decides when to enter or
+exit: it waits for an order you placed and translates it into the format the
+ProjectX API expects. With no order from you, it has nothing to copy. It
+won't give you an edge either. It moves an order from the platform you
+already trade on to the account you want it on, and it can't tell you whether
+that trade is any good.
+
 ---
 
 ## Requirements
 
-- Sierra Chart with trading enabled on the account you want to mirror FROM.
-- A TopstepX account and an API key (TopstepX dashboard -> Settings -> API).
+- Sierra Chart on an **Integrated** service package, with trading enabled on
+  the account you want to mirror FROM. TopstepX does not feed market data into
+  Sierra Chart, so if Topstep is your only account you still need Sierra
+  Chart's own data feed for a chart and DOM to trade from. See
+  [What it costs](#what-it-costs).
+- A TopstepX account. Start on the free **practice account**: ProjectX has no
+  sandbox, and Topstep's own advice is to test against a practice account. It
+  uses the same endpoints as an evaluation or funded account.
+- ProjectX API access and an API key. In the ProjectX dashboard, subscribe to
+  API access (the code **`topstep`** takes 50% off), link your TopstepX
+  profile, and generate the key. The key can place trades, so treat it like a
+  password: never commit it and never show it on screen. It lives only in
+  `bridge/manual_bridge.env`, which is gitignored.
 - Python 3.9+. The two packages it needs (`pyyaml`, `requests`) install
   themselves on first run if you use `start-bridge.bat`; otherwise
   `python -m pip install -r requirements.txt`.
 - Windows. The study writes the outbox with the Win32 API and Sierra Chart is
   a Windows application; the bridge itself is plain Python.
+
+---
+
+## What it costs
+
+The code is free. Running it is not. Prices were checked on 2026-09-05. They
+change, so check the linked pages.
+
+| Line | Monthly | Note |
+|---|---|---|
+| [Sierra Chart Integrated Standard](https://www.sierrachart.com/index.php?page=doc/Packages.php) (Service Package 10) | $36 | The cheapest package that works. The Base package can't use the Denali data feed. |
+| [Denali data feed](https://www.sierrachart.com/index.php?page=doc/DenaliExchangeDataFeed.php), CME only, with market depth | $13.50 | Covers ES, NQ, MES and MNQ. For other exchanges, see the Denali page. |
+| [ProjectX API access](https://help.topstep.com/en/articles/11187768-topstepx-api-access) | $29, or **$14.50 with the code `topstep`** | A public 50% code, listed as permanent on Topstep's page. |
+| **Total** | **about $64** | Before any Topstep evaluation fee. |
+
+That's the minimum the mirror needs. If you use order-flow tools (footprint,
+Numbers Bars, a full DOM ladder), you may want Integrated Advanced (Service
+Package 11), which costs more. Pick the package for how you trade, not for
+this tool.
+
+---
+
+## Check Topstep's rules first
+
+Read the rules for the account stage you are actually trading, on Topstep's
+own help pages. As checked on 2026-09-05:
+
+- **Trading Combine** and **Express Funded Account:** automated strategies are
+  allowed, with conditions.
+  ([Combine](https://help.topstep.com/en/articles/8284197-trading-combine-parameters) ·
+  [Express Funded](https://help.topstep.com/en/articles/8284215-express-funded-account-parameters))
+- **Live Funded Account:** the help page says automated strategies are
+  permitted, but automated trading through the ProjectX API is prohibited.
+  ([Live Funded](https://help.topstep.com/en/articles/10657969-live-funded-account-parameters))
+- **Personal device only.** All trading activity has to come from your own
+  device: no VPS, no VPN, no remote servers.
+  ([API access](https://help.topstep.com/en/articles/11187768-topstepx-api-access))
+  The mirror runs on the Windows machine your Sierra Chart runs on. Don't
+  host it anywhere else.
+
+These are Topstep's rules, not an interpretation of them, and they change.
+Re-read them before you connect. Every stage's rule, quoted with its source:
+[How to Trade a Topstep (TopstepX) Account from Sierra Chart](https://onepersontradedesk.com/blog/automate-topstep-sierra-chart).
 
 ---
 
@@ -113,6 +182,19 @@ In `manual_config.yaml`:
   study's *Symbol->Contract Map* input produces (`MNQ`, `NQ`, `ES`, `MES` by
   default). Note the full-size E-mini roots on ProjectX are `EP` and `ENQ`,
   not `ES`/`NQ`; the micros keep their tickers. **Edit at every contract roll.**
+  The ids in the example file are a sample month. **Verify them before you
+  trade;** they are not a promise they are current:
+  - The month in `contracts:` must match the month TopstepX is trading
+    **and** the month on your Sierra Chart chart (the *Scan Symbols* input
+    in step 5). If the three disagree, orders go to the wrong contract or
+    never mirror.
+  - Look ids up with ProjectX contract search (`POST /api/Contract/search`,
+    see the [ProjectX API docs](https://gateway.docs.projectx.com/)). It only
+    returns the month ProjectX marks as active, so in roll week it can still
+    show the old month. Check the new one with `POST /api/Contract/searchById`.
+  - `--doctor` warns when a mapped month has **expired**. It can't tell you
+    that a still-valid month is the wrong one, such as last quarter's
+    contract during roll week.
 - `paths:` - **leave the whole block commented out.** The bridge defaults to
   the `outbox\` folder shipped in this clone, which is right wherever you put
   it. Set `paths.outbox:` only if you want the study writing somewhere else.
@@ -146,6 +228,10 @@ bash sierra/deploy.sh "/path/to/SierraChart/ACS_Source"
 Then in Sierra Chart: **Analysis -> Build Custom Studies DLL -> Build ->
 `Manual_Mirror`**. Watch the build output for the success line.
 
+This is the most technical step of the setup, and it is configuration, not
+coding: move two files, press Build. If the build fails, paste the full build
+output into Claude Code or ChatGPT and ask what to fix.
+
 ### 5. Add the study to ONE chart
 
 Open the chart you trade from, select the trade account you want to mirror
@@ -160,7 +246,7 @@ TopstepX Manual Mirror**. Inputs:
 | **Verbose Logging** | **Yes** for the first few sessions. |
 | **Freshness Window (ms)** | `1000` (default). See [Freshness guard](#freshness-guard). |
 | **Scope To This Chartbook** | **No** unless you run automated trading studies in the same Sierra Chart instance. See [Safety notes](#safety-notes). |
-| **Scan Symbols** | The EXACT symbols to watch, `;` separated, as shown in the chart header, e.g. `ESU6.CME;MESU6.CME;NQU6.CME;MNQU6.CME`. A symbol not listed **never mirrors**. **Edit at every contract roll.** |
+| **Scan Symbols** | The EXACT symbols to watch, `;` separated, as shown in the chart header, e.g. `ESZ6.CME;MESZ6.CME;NQZ6.CME;MNQZ6.CME`. A symbol not listed **never mirrors**. **Edit at every contract roll.** |
 | **Outbox Directory** | The path `--doctor` printed. See below. |
 | **Close-If-Open On Fill (stop/limit)** | **No** until the live test in [Close-If-Open](#close-if-open) passes, then Yes. An input flip, no rebuild. |
 
@@ -235,6 +321,13 @@ rests. Within a scan interval plus a poll you should see the bridge log
 `place: label=manual-<id>-v1 ...` and a working order in the TopstepX portal.
 Cancel it in Sierra Chart; the bridge logs `cancel: order_id=...` and the
 portal order disappears. Only now are you live.
+
+**Keep the TopstepX portal open all session.** The mirror runs one way, so
+anything you do inside TopstepX is invisible to Sierra Chart. Place every
+order from Sierra Chart. When the two sides disagree, TopstepX is the record
+of truth. They can drift even if you follow that rule: a partial fill, a limit
+that fills on one side only, a crashed bridge or a failed API call that never
+reaches Topstep. The portal's **Flatten All** is your emergency stop.
 
 **End of day:** flatten and cancel everything in Sierra Chart as usual (the
 bridge mirrors the cancels), flip Enable to No, Ctrl-C the bridge, and confirm
@@ -402,8 +495,18 @@ Read these before you trust it with size.
   with a blank or mismatched source chartbook is skipped. Prove with a live
   test order and Verbose Logging (`SEE sc_id=... book='...'`) that your
   order-entry path populates the field before you rely on it.
-- **Contract roll checklist.** Three edits: the study's *Scan Symbols* input,
-  the `contracts:` map in the YAML, and a restart of the bridge.
+- **Contract roll checklist** (every quarter: March, June, September,
+  December). Sierra Chart and TopstepX don't necessarily switch to the new
+  month on the same day, so check both sides:
+  1. Confirm the month TopstepX is trading now, in the TopstepX platform
+     (e.g. `ESZ6`).
+  2. Update `contracts:` in the YAML to that month's ids and confirm them with
+     contract search (see [step 3](#3-contract-map-and-paths)).
+  3. Update the study's *Scan Symbols* input to the same month as it appears
+     in your chart header.
+  4. Restart the bridge, run `--doctor`, and place the 1-contract test order
+     from [Every trading day](#every-trading-day) on a practice account before
+     trading size.
 - **Switching trade accounts or Sim mode while armed.** The freshness guard
   makes it safe, but the clean habit is Enable -> No, confirm flat, switch,
   re-enable.
@@ -437,6 +540,16 @@ manual-state/
     seen_tags.json                 dedupe table
     sc_to_tsx.json                 sc_id -> TopstepX order id, for cancel/replace
 ```
+
+---
+
+## Contributing
+
+The ProjectX API is publicly documented, and anyone could build this. It's
+published so there is one version people can inspect, test and improve,
+instead of another black box. If you find a problem,
+[open an issue](https://github.com/drewautomates/optd-sierrachart-topstepx-mirror/issues).
+If you can make it better, pull requests are welcome.
 
 ---
 
