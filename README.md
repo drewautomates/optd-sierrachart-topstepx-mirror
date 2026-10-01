@@ -119,6 +119,12 @@ These are Topstep's rules, not an interpretation of them, and they change.
 Re-read them before you connect. Every stage's rule, quoted with its source:
 [How to Trade a Topstep (TopstepX) Account from Sierra Chart](https://onepersontradedesk.com/blog/automate-topstep-sierra-chart).
 
+Not committed to Topstep yet? How its automation rules stack up against the
+other US futures firms:
+[Topstep vs Apex](https://onepersontradedesk.com/compare/topstep-vs-apex) ·
+[Topstep vs Tradeify](https://onepersontradedesk.com/compare/topstep-vs-tradeify) ·
+[Topstep vs Lucid](https://onepersontradedesk.com/compare/topstep-vs-lucid).
+
 ---
 
 ## Setup (one time)
